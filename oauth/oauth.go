@@ -27,7 +27,7 @@ var (
 type AccessTokenStruct struct {
 	Id       string `json:"id"`
 	UserId   int64  `json:"user_id"`
-	ClientId string `json:"client_id"`
+	ClientId int64 `json:"client_id"`
 }
 
 func IsPublic(request *http.Request) bool {
@@ -77,6 +77,9 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 
 	at, err := getAccessToken(accessTokenId)
 	if err != nil {
+		if err.Status == http.StatusNotFound {
+			return nil
+		}
 		return err
 	}
 
