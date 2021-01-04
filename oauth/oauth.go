@@ -24,7 +24,7 @@ var (
 	}
 )
 
-type AccessTokenStruct struct {
+type accessTokenStruct struct {
 	Id       string `json:"id"`
 	UserId   int64  `json:"user_id"`
 	ClientId int64 `json:"client_id"`
@@ -69,8 +69,6 @@ func AuthenticateRequest(request *http.Request) *errors.RestError {
 	cleanRequest(request)
 
 	accessTokenId := request.URL.Query().Get(paramAccessToken)
-
-	// http://localhost:8081/api/v1/users/id?access_token=asdasd
 	if accessTokenId == "" {
 		return nil
 	}
@@ -99,10 +97,10 @@ func cleanRequest(request *http.Request)  {
 
 }
 
-func getAccessToken(accessTokenId string)(*AccessTokenStruct, *errors.RestError)  {
+func getAccessToken(accessTokenId string)(*accessTokenStruct, *errors.RestError)  {
 	response := oauthRestClient.Get(fmt.Sprintf("/oauth/access_token/%s", accessTokenId))
 
-	if response == nil || response.Response == nil{
+	if response.StatusCode == http.StatusNotFound || response.Response == nil{
 		return nil, errors.NewInternalServerError("Invalid client response when trying to access token")
 	}
 
@@ -114,7 +112,7 @@ func getAccessToken(accessTokenId string)(*AccessTokenStruct, *errors.RestError)
 		return nil, &restErr
 	}
 
-	var at AccessTokenStruct
+	var at accessTokenStruct
 	if err := json.Unmarshal(response.Bytes(), &at); err != nil {
 		return nil, errors.NewInternalServerError("Error when trying to unmarshal user response")
 	}
